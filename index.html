@@ -279,6 +279,13 @@
 
             dayBookings.sort((a, b) => getShiftPriority(a.shift) - getShiftPriority(b.shift));
 
+            // แปลงรูปแบบวันที่ให้แสดงเป็น DD Month YYYY (เช่น 07 November 2026)
+            const parts = dateStr.split('-');
+            const fYear = parts[0];
+            const fMonthIdx = parseInt(parts[1], 10) - 1;
+            const fDay = parts[2];
+            const formattedDateTitle = `${fDay} ${monthsName[fMonthIdx]} ${fYear}`;
+
             let htmlContent = `<div class="space-y-2 text-left max-h-60 overflow-y-auto pr-1">`;
             
             if (dayBookings.length === 0) {
@@ -307,7 +314,7 @@
             htmlContent += `</div>`;
 
             Swal.fire({
-                title: `รายชื่อผู้ลาวันที่ ${dateStr}`,
+                title: `รายชื่อผู้ลาวันที่ ${formattedDateTitle}`,
                 html: htmlContent,
                 showCloseButton: true,
                 showConfirmButton: false,
