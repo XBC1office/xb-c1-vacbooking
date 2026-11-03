@@ -18,9 +18,29 @@
         body { font-family: 'Sarabun', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex items-center justify-center">
 
-    <div class="container mx-auto p-4 max-w-6xl space-y-6">
+    <!-- Password Modal / Lock Screen -->
+    <div id="lock-screen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center space-y-6 border border-slate-200">
+            <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ</h2>
+                <p class="text-xs text-slate-500 mt-1">ระบบจองวันลาพักร้อน XB-C1 Inbound</p>
+            </div>
+            <form onsubmit="checkPassword(event)" class="space-y-4">
+                <input type="password" id="passcode-input" required maxlength="4" class="w-full text-center tracking-widest text-2xl px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="••••">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl text-sm shadow transition duration-200">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application (Hidden by default until password matches) -->
+    <div id="main-app" class="container mx-auto p-4 max-w-6xl space-y-6 hidden w-full">
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row justify-between items-center border border-slate-200 gap-4">
             <div>
@@ -111,9 +131,19 @@
         let allBookings = [];
         const monthsName = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-        window.onload = function() {
-            loadBookings();
-        };
+        function checkPassword(event) {
+            event.preventDefault();
+            const pass = document.getElementById('passcode-input').value;
+            if (pass === '1234') {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('main-app').classList.remove('hidden');
+                document.body.classList.remove('flex', 'items-center', 'justify-center');
+                loadBookings();
+            } else {
+                Swal.fire({ icon: 'error', title: 'รหัสผ่านไม่ถูกต้อง', text: 'กรุณากรอกใหม่อีกครั้ง', confirmButtonColor: '#4f46e5' });
+                document.getElementById('passcode-input').value = '';
+            }
+        }
 
         async function loadBookings() {
             try {
