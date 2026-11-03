@@ -30,12 +30,12 @@
                 <h2 class="text-2xl font-extrabold text-purple-900 tracking-wide">XB-C1 Vac booking</h2>
                 <p class="text-xs text-slate-500 mt-1">Please enter passcode to access</p>
             </div>
-            <div class="space-y-4">
+            <form onsubmit="checkPassword(event)" class="space-y-4">
                 <input type="password" id="passcode-input" required maxlength="4" class="w-full text-center tracking-widest text-2xl px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-700 focus:outline-none" placeholder="••••">
-                <button type="button" onclick="checkPassword()" class="w-full bg-purple-800 hover:bg-purple-900 text-white font-medium py-3 rounded-xl text-sm shadow-lg transition duration-200">
+                <button type="submit" class="w-full bg-purple-800 hover:bg-purple-900 text-white font-medium py-3 rounded-xl text-sm shadow-lg transition duration-200">
                     Login
                 </button>
-            </div>
+            </form>
             <!-- ข้อความ Prepare by บรรทัดล่างสุด -->
             <div class="pt-2 border-t border-slate-100 text-[11px] font-semibold text-purple-900 tracking-wider">
                 Prepare by XB-C1 OFFICE
@@ -133,8 +133,9 @@
         let allBookings = [];
         const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // ฟังก์ชันเช็ครหัสผ่านแบบคลิกปุ่มโดยตรง
-        function checkPassword() {
+        // ฟังก์ชันเช็ครหัสผ่าน ย้ายมาไว้บนสุดเพื่อให้พร้อมทำงาน 100%
+        function checkPassword(event) {
+            if (event) event.preventDefault();
             const pass = document.getElementById('passcode-input').value;
             if (pass === '1234') {
                 document.getElementById('lock-screen').style.display = 'none';
@@ -147,13 +148,6 @@
                 document.getElementById('passcode-input').value = '';
             }
         }
-
-        // กดปุ่ม Enter ที่แป้นพิมพ์แล้วให้ล็อกอินทันที
-        document.getElementById('passcode-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkPassword();
-            }
-        });
 
         async function loadBookings() {
             try {
