@@ -3,267 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองวันลาพักร้อน XB-C1</title>
+    <title>ระบบจองวันลาพักร้อน XB-C1 Inbound</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Sarabun', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <!-- หน้าจอ Login -->
-    <div id="auth-screen" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center space-y-6">
-            <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto text-indigo-600 text-3xl shadow-inner">
-                <i class="fas fa-lock"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold text-slate-800">ระบบจองวันลาพักร้อน</h2>
-                <p class="text-slate-500 text-sm mt-1">กรุณากรอกรหัสผ่านเพื่อเข้าใช้งานระบบ (XB-C1)</p>
-            </div>
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <input type="password" id="passcode-input" placeholder="ระบุ Passcode (เช่น 1234)" required
-                        class="w-full px-4 py-3 text-center text-xl tracking-widest border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                </div>
-                <button type="submit" id="login-btn"
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl shadow-lg shadow-indigo-200 transition flex items-center justify-center space-x-2">
-                    <span>เข้าสู่ระบบ</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-            </form>
-        </div>
-    </div>
+<body class="bg-slate-100 min-h-screen text-slate-800">
 
-    <!-- โครงสร้างหลักของแอป -->
-    <div id="app-container" class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-        <header class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="container mx-auto p-4 max-w-6xl space-y-6">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row justify-between items-center border border-slate-200 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800 flex items-center space-x-3">
-                    <i class="fas fa-calendar-check text-indigo-600"></i>
-                    <span>ระบบจองวันลาพักร้อน XB-C1 Inbound</span>
+                <h1 class="text-xl font-bold text-slate-800 flex items-center">
+                    <i class="fa-solid fa-calendar-check text-indigo-600 mr-2"></i> ระบบจองวันลาพักร้อน XB-C1 Inbound
                 </h1>
-                <p class="text-slate-500 text-sm mt-1">จัดการและตรวจสอบโควต้าการลา (กะเช้า / กะเย็น จำกัด 3 คน/วัน)</p>
+                <p class="text-xs text-slate-500 mt-1">จัดการและตรวจสอบโควต้าการลา (กะเช้า / กะเย็น จำกัด 3 คน/วัน)</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="switchTab('booking')" id="btn-tab-booking" class="px-4 py-2 rounded-xl font-medium text-sm transition bg-indigo-600 text-white shadow-sm">
-                    <i class="fas fa-calendar-plus mr-1.5"></i> จองวันลา
-                </button>
-                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-4 py-2 rounded-xl font-medium text-sm transition bg-slate-100 text-slate-600 hover:bg-slate-200">
-                    <i class="fas fa-table mr-1.5"></i> ตารางสรุปการจอง
-                </button>
-            </div>
-        </header>
+            <button onclick="loadBookings()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">
+                <i class="fa-solid fa-rotate-right mr-1"></i> รีเฟรชข้อมูล
+            </button>
+        </div>
 
-        <!-- Tab: จองวันลา -->
-        <div id="tab-booking" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
-                <h2 class="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3">ฟอร์มจองวันลา</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Booking Form -->
+            <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 h-fit">
+                <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center">
+                    <i class="fa-solid fa-calendar-plus text-indigo-600 mr-2"></i>ฟอร์มจองวันลา
+                </h2>
                 <form id="booking-form" onsubmit="handleBooking(event)" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">ID พนักงาน</label>
-                        <input type="text" id="emp-id" required placeholder="เช่น 12345" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ID พนักงาน</label>
+                        <input type="text" id="emp-id" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="เช่น 12345">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ</label>
-                        <input type="text" id="emp-name" required placeholder="ระบุชื่อจริง" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อ</label>
+                        <input type="text" id="emp-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="ระบุชื่อจริง">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">เลือกกะการทำงาน</label>
-                        <select id="emp-shift" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">เลือกกะการทำงาน</label>
+                        <select id="emp-shift" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
                             <option value="">-- เลือกกะ --</option>
-                            <option value="กะเช้า">กะเช้า (จำกัด 3 คน)</option>
-                            <option value="กะเย็น">กะเย็น (จำกัด 3 คน)</option>
+                            <option value="กะเช้า">กะเช้า (Morning)</option>
+                            <option value="กะบ่าย">กะบ่าย (Evening)</option>
+                            <option value="กะดึก">กะดึก (Night)</option>
+                            <option value="OFF">OFF</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">วันที่ต้องการลา</label>
-                        <input type="date" id="leave-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">วันที่ต้องการลา</label>
+                        <input type="date" id="leave-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
-                    <button type="submit" id="submit-booking-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg shadow-sm transition">
+                    <button type="submit" id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition duration-200">
                         ยืนยันการจอง
                     </button>
                 </form>
             </div>
-            
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
-                        <i class="fas fa-calendar-alt text-indigo-600"></i>
-                        <span>ปฏิทินการจองวันลา</span>
-                    </h3>
+
+            <!-- Calendar Container -->
+            <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 md:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-slate-700 flex items-center">
+                        <i class="fa-solid fa-calendar text-indigo-600 mr-2"></i>ปฏิทินการจองวันลา
+                    </h2>
                     <div class="flex items-center space-x-2">
-                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-lg"><i class="fas fa-chevron-left"></i></button>
-                        <span id="current-month-year" class="font-bold text-slate-700 text-sm"></span>
-                        <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-lg"><i class="fas fa-chevron-right"></i></button>
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span id="month-year-display" class="text-sm font-bold text-slate-700 w-32 text-center"></span>
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-500 mb-2">
-                    <div>อา</div><div>จ</div><div>อ</div><div>พ</div><div>พฤ</div><div>ศ</div><div>ส</div>
-                </div>
-                <div id="calendar-days" class="grid grid-cols-7 gap-1 text-sm"></div>
-            </div>
-        </div>
 
-        <!-- Tab: ตารางสรุป -->
-        <div id="tab-dashboard" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 class="text-lg font-bold text-slate-800 mb-4">ตารางสรุปการจองวันลาทั้งหมด</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left border-collapse">
-                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b">
-                            <tr>
-                                <th class="p-3">วัน-เวลาที่ยื่นคำขอ</th>
-                                <th class="p-3">ID No.</th>
-                                <th class="p-3">ชื่อ</th>
-                                <th class="p-3">กะ (Shift)</th>
-                                <th class="p-3">วันที่ลา</th>
-                            </tr>
-                        </thead>
-                        <tbody id="booking-table-body" class="divide-y divide-slate-100">
-                            <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
-                        </tbody>
-                    </table>
+                <!-- Weekdays -->
+                <div class="grid grid-cols-7 text-center font-semibold text-slate-500 mb-2 text-xs">
+                    <div class="text-red-500">อา</div>
+                    <div>จ</div>
+                    <div>อ</div>
+                    <div>พ</div>
+                    <div>พฤ</div>
+                    <div>ศ</div>
+                    <div class="text-blue-500">ส</div>
                 </div>
+
+                <!-- Calendar Days -->
+                <div id="calendar-days" class="grid grid-cols-7 gap-1.5"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // วางลิงก์ Web App (ที่ลงท้ายด้วย /exec) ของคุณไว้ระหว่างเครื่องหมายคำพูดด้านล่างนี้
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYVC4Mro8J7UJBYSfM9lTeRc7RYVSqNgW3IGYtIJNLMERc-y1sJZBRaq7Y42YBWaRJ/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPnmCiI3kiMPn69piQGIXo4-LU6fBsNzT3PI6H5TWpOqoLP9SK-Of2mf6a1BXKuSJU/exec";
 
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
         let allBookings = [];
-        let currentDate = new Date();
+        const monthsName = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
 
-        async function handleLogin(event) {
-            event.preventDefault();
-            const passcode = document.getElementById('passcode-input').value;
-            const btn = document.getElementById('login-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังตรวจสอบ...';
-
-            try {
-                const response = await fetch(`${GOOGLE_SCRIPT_URL}?page=verify&code=${passcode}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    loadBookings();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'รหัสผ่านไม่ถูกต้อง',
-                        text: 'กรุณากรอก Passcode ให้ถูกต้องอีกครั้ง',
-                        confirmButtonColor: '#4f46e5'
-                    });
-                }
-            } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
-                    confirmButtonColor: '#4f46e5'
-                });
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<span>เข้าสู่ระบบ</span><i class="fas fa-arrow-right"></i>';
-            }
-        }
-
-        function switchTab(tab) {
-            if (tab === 'booking') {
-                document.getElementById('tab-booking').classList.remove('hidden');
-                document.getElementById('tab-dashboard').classList.add('hidden');
-                document.getElementById('btn-tab-booking').className = "px-4 py-2 rounded-xl font-medium text-sm transition bg-indigo-600 text-white shadow-sm";
-                document.getElementById('btn-tab-dashboard').className = "px-4 py-2 rounded-xl font-medium text-sm transition bg-slate-100 text-slate-600 hover:bg-slate-200";
-            } else {
-                document.getElementById('tab-booking').classList.add('hidden');
-                document.getElementById('tab-dashboard').classList.remove('hidden');
-                document.getElementById('btn-tab-dashboard').className = "px-4 py-2 rounded-xl font-medium text-sm transition bg-indigo-600 text-white shadow-sm";
-                document.getElementById('btn-tab-booking').className = "px-4 py-2 rounded-xl font-medium text-sm transition bg-slate-100 text-slate-600 hover:bg-slate-200";
-                renderTable();
-            }
-        }
+        window.onload = function() {
+            loadBookings();
+        };
 
         async function loadBookings() {
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
-                const result = await response.json();
-                if (result.success) {
-                    allBookings = result.data || [];
-                    renderCalendar();
-                }
-            } catch (err) {
-                console.error("Failed to load bookings", err);
+                const data = await response.json();
+                allBookings = data.bookings || [];
+                renderCalendar();
+            } catch (error) {
+                console.error("Error loading bookings:", error);
             }
-        }
-
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const monthsName = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-            document.getElementById('current-month-year').innerText = `${monthsName[month]} ${year}`;
-
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const totalDays = new Date(year, month + 1, 0).getDate();
-            const calendarDays = document.getElementById('calendar-days');
-            calendarDays.innerHTML = '';
-
-            for (let i = 0; i < firstDayIndex; i++) {
-                calendarDays.innerHTML += `<div class="p-2"></div>`;
-            }
-
-            for (let day = 1; day <= totalDays; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayBookings = allBookings.filter(b => b.leaveDate && b.leaveDate.startsWith(dateStr));
-                
-                const morningCount = dayBookings.filter(b => b.shift === 'กะเช้า').length;
-                const eveningCount = dayBookings.filter(b => b.shift === 'กะเย็น').length;
-
-                let html = `<div class="p-2 border border-slate-100 rounded-xl bg-slate-50 min-h-[80px] flex flex-col justify-between">
-                    <span class="font-bold text-slate-700 text-xs">${day}</span>
-                    <div class="space-y-0.5 text-[10px]">
-                        <div class="px-1 py-0.5 rounded ${morningCount >= 3 ? 'bg-red-100 text-red-700 font-bold' : 'bg-emerald-100 text-emerald-700'}">เช้า: ${morningCount}/3</div>
-                        <div class="px-1 py-0.5 rounded ${eveningCount >= 3 ? 'bg-red-100 text-red-700 font-bold' : 'bg-blue-100 text-blue-700 font-bold'}">เย็น: ${eveningCount}/3</div>
-                    </div>
-                </div>`;
-                calendarDays.innerHTML += html;
-            }
-        }
-
-        function changeMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
-            renderCalendar();
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('booking-table-body');
-            tbody.innerHTML = '';
-            if (allBookings.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">ยังไม่มีข้อมูลการจอง</td></tr>`;
-                return;
-            }
-            allBookings.forEach(b => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100">
-                        <td class="p-3 text-slate-600">${new Date(b.timestamp).toLocaleString('th-TH')}</td>
-                        <td class="p-3 font-medium text-slate-800">${b.empId}</td>
-                        <td class="p-3 text-slate-700">${b.name}</td>
-                        <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-semibold ${b.shift === 'กะเช้า' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}">${b.shift}</span></td>
-                        <td class="p-3 text-slate-700">${b.leaveDate}</td>
-                    </tr>
-                `;
-            });
         }
 
         async function handleBooking(event) {
             event.preventDefault();
-            const btn = document.getElementById('submit-booking-btn');
-            btn.disabled = true;
-            btn.innerText = 'กำลังบันทึก...';
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerText = 'กำลังบันทึก...';
+            submitBtn.disabled = true;
 
             const payload = {
                 empId: document.getElementById('emp-id').value,
@@ -280,33 +147,83 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'สำเร็จ',
-                        text: result.message,
-                        confirmButtonColor: '#4f46e5'
-                    });
+                    Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: 'ข้อมูลการจองถูกบันทึกเรียบร้อยแล้ว', confirmButtonColor: '#4f46e5' });
                     document.getElementById('booking-form').reset();
                     loadBookings();
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'ไม่สามารถจองได้',
-                        text: result.message,
-                        confirmButtonColor: '#4f46e5'
-                    });
+                    Swal.fire({ icon: 'error', title: 'บันทึกไม่สำเร็จ', text: result.message, confirmButtonColor: '#4f46e5' });
                 }
-            } catch (err) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถเชื่อมต่อระบบได้',
-                    confirmButtonColor: '#4f46e5'
-                });
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถเชื่อมต่อเพื่อบันทึกข้อมูลได้', confirmButtonColor: '#4f46e5' });
             } finally {
-                btn.disabled = false;
-                btn.innerText = 'ยืนยันการจอง';
+                submitBtn.innerText = 'ยืนยันการจอง';
+                submitBtn.disabled = false;
             }
+        }
+
+        function renderCalendar() {
+            const calendarDays = document.getElementById('calendar-days');
+            const monthYearDisplay = document.getElementById('month-year-display');
+            calendarDays.innerHTML = '';
+
+            monthYearDisplay.innerText = `${monthsName[currentMonth]} ${currentYear + 543}`;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // ช่องว่างต้นเดือน
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'h-28 bg-slate-50 border border-slate-100 rounded-lg';
+                calendarDays.appendChild(emptyDiv);
+            }
+
+            // วันในเดือน
+            for (let day = 1; day <= totalDays; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'h-28 border border-slate-200 rounded-lg p-1 bg-white flex flex-col justify-between overflow-hidden shadow-sm';
+                
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayBookings = allBookings.filter(b => b.leaveDate === dateStr);
+
+                let bookingsHtml = '';
+                dayBookings.forEach(b => {
+                    let shiftClass = "bg-amber-100 text-amber-800 border-amber-200";
+                    const shiftLower = (b.shift || '').toLowerCase();
+                    
+                    if (shiftLower.includes('เช้า') || shiftLower.includes('morning')) {
+                        shiftClass = "bg-emerald-100 text-emerald-800 border-emerald-200"; // กะเช้า = สีเขียว
+                    } else if (shiftLower.includes('บ่าย') || shiftLower.includes('evening')) {
+                        shiftClass = "bg-blue-100 text-blue-800 border-blue-200"; // กะบ่าย = สีฟ้า
+                    } else if (shiftLower.includes('ดึก') || shiftLower.includes('night')) {
+                        shiftClass = "bg-purple-100 text-purple-800 border-purple-200"; // กะดึก = สีม่วง
+                    } else if (shiftLower.includes('off')) {
+                        shiftClass = "bg-rose-100 text-rose-800 border-rose-200"; // OFF = สีแดง
+                    }
+
+                    bookingsHtml += `<div class="text-[10px] ${shiftClass} px-1 py-0.5 rounded truncate border mt-0.5 font-medium" title="${b.name} (${b.shift})">
+                        ${b.name} (${b.shift})
+                    </div>`;
+                });
+
+                dayDiv.innerHTML = `
+                    <div class="font-bold text-xs text-slate-700 px-1">${day}</div>
+                    <div class="overflow-y-auto flex-1 space-y-0.5">${bookingsHtml}</div>
+                `;
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
         }
     </script>
 </body>
