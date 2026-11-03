@@ -20,7 +20,7 @@
 </head>
 <body class="bg-purple-950 min-h-screen text-slate-800 flex items-center justify-center p-4">
 
-    <!-- Password Modal / Lock Screen (ธีมสีม่วงการบินไทย) -->
+    <!-- Password Modal / Lock Screen -->
     <div id="lock-screen" class="fixed inset-0 bg-purple-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center space-y-6 border border-purple-100">
             <div class="w-16 h-16 bg-purple-100 text-purple-800 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
@@ -36,7 +36,6 @@
                     Login
                 </button>
             </form>
-            <!-- ข้อความ Prepare by บรรทัดล่างสุด -->
             <div class="pt-2 border-t border-slate-100 text-[11px] font-semibold text-purple-900 tracking-wider">
                 Prepare by XB-C1 OFFICE
             </div>
@@ -133,7 +132,6 @@
         let allBookings = [];
         const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // ฟังก์ชันเช็ครหัสผ่าน ย้ายมาไว้บนสุดเพื่อให้พร้อมทำงาน 100%
         function checkPassword(event) {
             if (event) event.preventDefault();
             const pass = document.getElementById('passcode-input').value;
@@ -195,6 +193,49 @@
             }
         }
 
+        // ฟังก์ชันสำหรับกดยกเลิกวันลา
+        async function cancelBookingPrompt(dateStr, empName, shiftName) {
+            const { value: empIdInput } = await Swal.fire({
+                title: 'ยืนยันการยกเลิกวันลา',
+                text: `ต้องการยกเลิกวันลาของ "${empName}" (${shiftName}) วันที่ ${dateStr} ใช่หรือไม่? กรุณากรอกรหัสพนักงานของคุณเพื่อยืนยัน`,
+                input: 'password',
+                inputPlaceholder: 'Enter Employee ID',
+                inputAttributes: {
+                    autocapitalize: 'off',
+                    autocorrect: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยันยกเลิก',
+                cancelButtonText: 'ปิด',
+                confirmButtonColor: '#dc2626'
+            });
+
+            if (empIdInput) {
+                Swal.fire({ title: 'Cancelling...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'delete',
+                            empId: empIdInput,
+                            leaveDate: dateStr
+                        })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({ icon: 'success', title: 'Cancelled', text: 'ยกเลิกวันลาเรียบร้อยแล้ว', confirmButtonColor: '#6b21a8' });
+                        loadBookings();
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Failed', text: result.message, confirmButtonColor: '#6b21a8' });
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', confirmButtonColor: '#6b21a8' });
+                }
+            }
+        }
+
         function getShiftPriority(shift) {
             const s = (shift || '').toString().toLowerCase().trim();
             if (s.includes('เช้า')) return 1;
@@ -231,12 +272,11 @@
                     return b.leaveDate.startsWith(dateStr);
                 });
 
-                // จัดเรียงกะ: กะเช้า (1) -> กะเย็น (2)
                 dayBookings.sort((a, b) => getShiftPriority(a.shift) - getShiftPriority(b.shift));
 
                 let bookingsHtml = '';
                 dayBookings.forEach(b => {
-                    let shiftClass = "bg-amber-100 text-amber-800 border-amber-200";
+                    let shiftClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
                     const priority = getShiftPriority(b.shift);
                     
                     if (priority === 1) {
@@ -245,10 +285,14 @@
                         shiftClass = "bg-blue-100 text-blue-800 border-blue-200"; // กะเย็น = สีฟ้า
                     }
 
-                    // แสดงผลเฉพาะชื่อพนักงานอย่างเดียว พร้อม Tooltip ดูรายละเอียดกะ
-                    bookingsHtml += `<div class="text-[11px] ${shiftClass} px-1.5 py-0.5 rounded border mt-0.5 font-medium truncate" title="${b.name} (${b.shift})">
-                        ${b.name}
-                    </div>`;
+                    // แสดงชื่อพนักงาน พร้อมปุ่มกากบาทเล็กๆ (x) สำหรับคลิกยกเลิก
+                    bookingsHtml += `
+                        <div class="text-[11px] ${shiftClass} px-1.5 py-0.5 rounded border mt-0.5 font-medium flex justify-between items-center group" title="${b.name} (${b.shift})">
+                            <span class="truncate pr-1">${b.name}</span>
+                            <button onclick="cancelBookingPrompt('${dateStr}', '${b.name}', '${b.shift}')" class="text-slate-400 hover:text-red-600 font-bold px-1 rounded transition" title="Cancel this leave">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>`;
                 });
 
                 dayDiv.innerHTML = `
