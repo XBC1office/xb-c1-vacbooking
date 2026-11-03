@@ -213,8 +213,15 @@
                 const dayDiv = document.createElement('div');
                 dayDiv.className = 'h-28 border border-slate-200 rounded-lg p-1 bg-white flex flex-col justify-between overflow-hidden shadow-sm';
                 
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayBookings = allBookings.filter(b => b.leaveDate === dateStr);
+                const formattedMonth = String(currentMonth + 1).padStart(2, '0');
+                const formattedDay = String(day).padStart(2, '0');
+                const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
+
+                // ค้นหาข้อมูลการจองที่ตรงกับวันที่ (รองรับทั้งรูปแบบ YYYY-MM-DD และ ISO string)
+                const dayBookings = allBookings.filter(b => {
+                    if (!b.leaveDate) return false;
+                    return b.leaveDate.startsWith(dateStr);
+                });
 
                 let bookingsHtml = '';
                 dayBookings.forEach(b => {
