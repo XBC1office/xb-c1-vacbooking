@@ -203,21 +203,34 @@
 
             for (let i = 0; i < firstDay; i++) {
                 const emptyDiv = document.createElement('div');
-                emptyDiv.className = 'h-28 bg-slate-50 border border-slate-100 rounded-lg';
+                emptyDiv.className = 'min-h-[120px] bg-slate-50 border border-slate-100 rounded-lg';
                 calendarDays.appendChild(emptyDiv);
             }
 
             for (let day = 1; day <= totalDays; day++) {
                 const dayDiv = document.createElement('div');
-                dayDiv.className = 'h-28 border border-slate-200 rounded-lg p-1 bg-white flex flex-col justify-between overflow-hidden shadow-sm';
+                dayDiv.className = 'min-h-[120px] border border-slate-200 rounded-lg p-1.5 bg-white flex flex-col shadow-sm';
                 
                 const formattedMonth = String(currentMonth + 1).padStart(2, '0');
                 const formattedDay = String(day).padStart(2, '0');
                 const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
 
-                const dayBookings = allBookings.filter(b => {
+                let dayBookings = allBookings.filter(b => {
                     if (!b.leaveDate) return false;
                     return b.leaveDate.startsWith(dateStr);
+                });
+
+                // จัดเรียงลำดับกะ: กะเช้าขึ้นก่อน ตามด้วยกะบ่าย/เย็น, กะดึก และ OFF
+                dayBookings.sort((a, b) => {
+                    const getPriority = (shift) => {
+                        const s = (shift || '').toLowerCase();
+                        if (s.includes('เช้า') || s.includes('morning')) return 1;
+                        if (s.includes('บ่าย') || s.includes('evening') || s.includes('bany')) return 2;
+                        if (s.includes('ดึก') || s.includes('night')) return 3;
+                        if (s.includes('off')) return 4;
+                        return 5;
+                    };
+                    return getPriority(a.shift) - getPriority(b.shift);
                 });
 
                 let bookingsHtml = '';
@@ -235,14 +248,14 @@
                         shiftClass = "bg-rose-100 text-rose-800 border-rose-200"; // OFF = สีแดง
                     }
 
-                    bookingsHtml += `<div class="text-[10px] ${shiftClass} px-1 py-0.5 rounded truncate border mt-0.5 font-medium" title="${b.name} (${b.shift})">
+                    bookingsHtml += `<div class="text-[11px] ${shiftClass} px-1.5 py-0.5 rounded border mt-1 font-medium">
                         ${b.name} (${b.shift})
                     </div>`;
                 });
 
                 dayDiv.innerHTML = `
-                    <div class="font-bold text-xs text-slate-700 px-1">${day}</div>
-                    <div class="overflow-y-auto flex-1 space-y-0.5">${bookingsHtml}</div>
+                    <div class="font-bold text-xs text-slate-700 px-1 mb-1">${day}</div>
+                    <div class="flex-1 space-y-0.5">${bookingsHtml}</div>
                 `;
                 calendarDays.appendChild(dayDiv);
             }
