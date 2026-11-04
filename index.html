@@ -138,9 +138,26 @@
         let idleTimer = null;
         let loggedInEmpId = "";
         let loggedInEmpName = "";
-        const IDLE_TIMEOUT = 1 * 60 * 1000; // ปรับเหลือ 1 นาที (60 วินาที) ตามข้อกำหนด
+        const IDLE_TIMEOUT = 1 * 60 * 1000;
         const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        // --- ส่วนเสริม: ฟังก์ชันคำนวณกะ 4 วันวนซ้ำ (Day / Night) ---
+        const ANCHOR_DATE = new Date(2027, 0, 1); // 1 ม.ค. 2027 คือ B/C ตามตาราง
+        const SHIFT_PATTERN = [
+            { day: 'B', night: 'C' }, // วันที่ 1
+            { day: 'D', night: 'B' }, // วันที่ 2
+            { day: 'A', night: 'D' }, // วันที่ 3
+            { day: 'C', night: 'A' }  // วันที่ 4
+        ];
+
+        function getShiftForDate(targetDate) {
+            const diffTime = targetDate.getTime() - ANCHOR_DATE.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let index = diffDays % 4;
+            if (index < 0) index += 4;
+            return SHIFT_PATTERN[index];
+        }
 
         async function checkEmployeeLogin(event) {
             if (event) event.preventDefault();
@@ -322,12 +339,10 @@
             });
         }
 
-        // ฟังก์ชันขอยืนยันเดือนเกิด 3 ตัวอักษรก่อนกดยกเลิก
         async function cancelFromPopup(dateStr, bookingEmpId, empName, shiftName) {
             Swal.close();
             resetIdleTimer();
 
-            // เด้งกล่องให้กรอกเดือนเกิด 3 ตัวอักษร
             const { value: birthMonthInput } = await Swal.fire({
                 title: 'ยืนยันการยกเลิกวันลา',
                 text: `กรุณากรอกเดือนเกิด (3 ตัวอักษรภาษาอังกฤษ เช่น jan, feb) ของ "${empName}" เพื่อยืนยัน`,
@@ -433,9 +448,18 @@
                         </div>`;
                 });
 
+                // คำนวณกะประจำวัน (Day/Night) มาแสดงใต้เลขวันที่
+                const currentDateObj = new Date(currentYear, currentMonth, day);
+                const shiftInfo = getShiftForDate(currentDateObj);
+
                 dayDiv.innerHTML = `
                     <div class="flex justify-between items-center px-0.5 mb-1">
-                        <span class="font-bold text-xs text-slate-700">${day}</span>
+                        <div>
+                            <span class="font-bold text-xs text-slate-700">${day}</span>
+                            <div class="text-[10px] font-semibold text-purple-700 bg-purple-50 px-1 rounded mt-0.5 inline-block">
+                                ${shiftInfo.day}/${shiftInfo.night}
+                            </div>
+                        </div>
                         ${dayBookings.length > 0 ? `<span class="bg-purple-100 text-purple-800 text-[10px] px-1.5 rounded-full font-bold">${dayBookings.length} คน</span>` : ''}
                     </div>
                     <div class="w-full flex-1 space-y-0.5">${bookingsHtml}</div>
