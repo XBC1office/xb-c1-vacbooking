@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XB-C1 Vac booking</title>
-    <!-- PWA Manifest Link สำหรับ Android / Chrome -->
+    <!-- PWA Manifest & Theme Color สำหรับ Android / Chrome -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#581c87">
     <!-- Tailwind CSS CDN -->
@@ -470,7 +470,7 @@
             
             calendarDays.innerHTML = '';
             
-            // แสดงชื่อเดือนแบบย่อ 2 บรรทัด (บรรทัดบน: Jan 2027 / บรรทัดล่าง: มค. 2570)
+            // แสดงเดือนแบบย่อ 2 บรรทัด (บรรทัดบน: Jan 2027 / บรรทัดล่าง: มค. 2570)
             const yearTh = currentYear + 543;
             monthYearDisplay.innerHTML = `
                 <div class="text-sm font-bold text-purple-900">${monthsShortEn[currentMonth]} ${currentYear}</div>
@@ -555,6 +555,21 @@
                 currentYear++;
             }
             renderCalendar();
+        }
+    </script>
+
+    <!-- ลงทะเบียน Service Worker เพื่อรองรับการติดตั้งแอปบน Android Chrome -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker registered successfully:', reg.scope);
+                    })
+                    .catch((err) => {
+                        console.log('Service Worker registration failed:', err);
+                    });
+            });
         }
     </script>
 </body>
