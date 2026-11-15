@@ -7,6 +7,8 @@
     <!-- PWA Manifest & Theme Color สำหรับ Android / Chrome -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#581c87">
+    <!-- Apple Touch Icon สำหรับ iOS / Safari -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1828/1828778.png">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -56,7 +58,7 @@
                 <p class="text-xs text-slate-500 mt-1">Logged in as: <span id="current-user-display" class="font-bold text-purple-700"></span></p>
             </div>
             <div class="flex items-center gap-3 flex-wrap justify-center">
-                <!-- ปุ่มติดตั้งแอป (จะซ่อนไว้โดยอัตโนมัติ และแสดงขึ้นมาเฉพาะตอนที่เบราว์เซอร์อนุญาตให้ติดตั้ง) -->
+                <!-- ปุ่มติดตั้งแอป (แสดงเฉพาะบน Android ที่เบราว์เซอร์รองรับ) -->
                 <button id="install-btn" onclick="installPWA()" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-sm font-medium transition items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-download"></i> ติดตั้งแอป
                 </button>
