@@ -177,6 +177,44 @@
             return SHIFT_PATTERN[index];
         }
 
+        // --- ฟังก์ชันจัดรูปแบบชื่อพร้อมไฮไลต์สีประจำกลุ่ม A, B, C, D (ยกเว้น OFFICE) ---
+        function formatNameWithGroupBadge(rawName) {
+            const nameStr = (rawName || '').trim();
+            if (!nameStr) return '';
+
+            // ถ้าขึ้นต้นด้วย OFFICE ไม่ต้องใส่สีไฮไลต์พิเศษ
+            if (nameStr.toUpperCase().startsWith('OFFICE')) {
+                return `<span class="truncate">${nameStr}</span>`;
+            }
+
+            // ตรวจสอบตัวอักษรกลุ่ม A, B, C, D ด้านหน้าชื่อ (ตามด้วยช่องว่าง)
+            const match = nameStr.match(/^([ABCD])\s+(.+)$/i);
+            if (match) {
+                const group = match[1].toUpperCase();
+                const restName = match[2];
+                let badgeColor = "";
+
+                if (group === 'A') {
+                    badgeColor = "bg-purple-200 text-purple-900 border-purple-300"; // ม่วงพาสเทล
+                } else if (group === 'B') {
+                    badgeColor = "bg-emerald-200 text-emerald-900 border-emerald-300"; // เขียวมินต์พาสเทล
+                } else if (group === 'C') {
+                    badgeColor = "bg-pink-200 text-pink-900 border-pink-300"; // ชมพูพาสเทล
+                } else if (group === 'D') {
+                    badgeColor = "bg-orange-200 text-orange-900 border-orange-300"; // ส้มพีชพาสเทล
+                }
+
+                return `
+                    <span class="inline-flex items-center gap-1.5 truncate">
+                        <span class="${badgeColor} border px-1.5 py-0.2 rounded text-[11px] font-extrabold shrink-0 shadow-2xs">${group}</span>
+                        <span class="truncate">${restName}</span>
+                    </span>
+                `;
+            }
+
+            return `<span class="truncate">${nameStr}</span>`;
+        }
+
         async function checkEmployeeLogin(event) {
             if (event) event.preventDefault();
             const empIdInput = document.getElementById('login-emp-id');
@@ -343,11 +381,12 @@
                     }
 
                     let canCancel = (b.empId === loggedInEmpId);
+                    const formattedNameHtml = formatNameWithGroupBadge(b.name);
                     
                     htmlContent += `
                         <div class="flex items-center justify-between p-2.5 rounded-xl border ${badgeClass} text-xs font-medium">
-                            <div>
-                                <span class="font-bold text-sm">${b.name}</span> 
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-sm inline-flex items-center">${formattedNameHtml}</span> 
                                 <span class="opacity-75">(${b.shift})</span>
                             </div>
                             ${canCancel ? `<button onclick="cancelFromPopup('${dateStr}', '${b.empId}', '${b.name}', '${b.shift}')" class="bg-white/80 hover:bg-red-600 hover:text-white text-red-600 px-2 py-1 rounded-lg font-bold transition shadow-sm" title="ยกเลิกวันลานี้">
@@ -475,9 +514,11 @@
                         shiftClass = "bg-blue-100 text-blue-800 border-blue-200";
                     }
 
+                    const formattedNameHtml = formatNameWithGroupBadge(b.name);
+
                     bookingsHtml += `
                         <div class="text-xs ${shiftClass} px-2 py-1.5 rounded border mb-1 font-bold flex justify-between items-center shadow-xs" title="${b.name} (${b.shift})">
-                            <span class="truncate">${b.name}</span>
+                            ${formattedNameHtml}
                         </div>`;
                 });
 
