@@ -62,13 +62,13 @@
             </div>
         </div>
 
-        <!-- แบบที่ 2: กล่องป้ายประกาศเตือนเด่นๆ ด้านบนหน้าจอหลัก -->
+        <!-- ป้ายประกาศเตือนด้านบนหน้าจอหลัก -->
         <div class="bg-amber-50 border-l-4 border-amber-500 text-amber-900 p-4 rounded-xl shadow-sm flex items-center gap-3">
             <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0 text-lg">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="text-xs md:text-sm font-medium leading-relaxed">
-                <span class="font-bold text-amber-950">ข้อควรระวัง / Reminder:</span> หลังจากจองโควต้าวันลาในระบบนี้เรียบร้อยแล้ว <span class="underline decoration-amber-500 decoration-2 font-bold text-rose-700">อย่าลืมเข้าไปลงบันทึกวันลาในระบบ ThaiTouch</span> ด้วยนะคะ
+                <span class="font-bold text-amber-950">Reminder:</span> <span class="font-bold text-rose-700">จองคิวได้แล้ว อย่าลืมลงขอในระบบ Thai Touch</span>
             </div>
         </div>
 
@@ -288,14 +288,13 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // แบบที่ 1: เด้งเตือนทันทีหลังกดจองสำเร็จ
+                    // ป๊อปอัปแจ้งเตือนหลังจองสำเร็จ
                     Swal.fire({
                         icon: 'success',
                         title: 'จองวันลาสำเร็จ!',
                         html: `
-                            <p class="text-sm text-slate-600 mb-3">บันทึกโควต้าวันลาในระบบเรียบร้อยแล้ว</p>
-                            <div class="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-xl text-sm font-bold">
-                                ⚠️ อย่าลืมเข้าไปลงบันทึกในระบบ <span class="text-rose-600 underline">ThaiTouch</span> ต่อทันทีนะคะ!
+                            <div class="bg-amber-50 border border-amber-300 text-amber-900 p-3 rounded-xl text-sm font-bold mt-2">
+                                ⚠️ <span class="text-rose-700">จองคิวได้แล้ว อย่าลืมลงขอในระบบ Thai Touch</span>
                             </div>
                         `,
                         confirmButtonText: 'รับทราบ',
