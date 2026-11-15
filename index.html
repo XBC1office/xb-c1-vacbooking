@@ -115,7 +115,8 @@
                         <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition">
                             <i class="fa-solid fa-chevron-left"></i>
                         </button>
-                        <span id="month-year-display" class="text-sm font-bold text-slate-700 w-40 text-center"></span>
+                        <!-- แสดงเดือนแบบย่อ 2 บรรทัด (อังกฤษ ค.ศ. / ไทย พ.ศ.) -->
+                        <div id="month-year-display" class="w-32 text-center leading-tight"></div>
                         <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition">
                             <i class="fa-solid fa-chevron-right"></i>
                         </button>
@@ -154,7 +155,9 @@
         let loggedInEmpId = "";
         let loggedInEmpName = "";
         const IDLE_TIMEOUT = 1 * 60 * 1000;
-        const monthsName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        const monthsShortEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthsShortTh = ["มค.", "กพ.", "มีค.", "เมย.", "พค.", "มิย.", "กค.", "สค.", "กย.", "ตค.", "พย.", "ธค."];
         const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         // --- ฟังก์ชันคำนวณกะ 4 วันวนซ้ำ (Day / Night) ---
@@ -288,7 +291,6 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // ป๊อปอัปแจ้งเตือนหลังจองสำเร็จแบบเป็นทางการ
                     Swal.fire({
                         icon: 'success',
                         title: 'จองวันลาสำเร็จ',
@@ -425,7 +427,13 @@
             if (!calendarDays || !monthYearDisplay) return;
             
             calendarDays.innerHTML = '';
-            monthYearDisplay.innerText = `${monthsName[currentMonth]} ${currentYear}`;
+            
+            // แสดงชื่อเดือนแบบย่อ 2 บรรทัด (บรรทัดบน: Jan 2027 / บรรทัดล่าง: มค. 2570)
+            const yearTh = currentYear + 543;
+            monthYearDisplay.innerHTML = `
+                <div class="text-sm font-bold text-purple-900">${monthsShortEn[currentMonth]} ${currentYear}</div>
+                <div class="text-xs font-semibold text-slate-500">${monthsShortTh[currentMonth]} ${yearTh}</div>
+            `;
 
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
