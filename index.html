@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XB-C1 Vac booking</title>
+    <!-- PWA Manifest & Theme Color -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#581c87">
-    <link rel="apple-touch-icon" href="https://placehold.co/512x512/581c87/ffffff.png?text=X">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -17,7 +23,7 @@
 </head>
 <body class="bg-purple-950 min-h-screen text-slate-800 flex items-center justify-center p-4">
 
-    <!-- Login Modal -->
+    <!-- Login Modal / Lock Screen -->
     <div id="lock-screen" class="fixed inset-0 bg-purple-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center space-y-6 border border-purple-100">
             <div class="w-16 h-16 bg-purple-100 text-purple-800 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
@@ -41,6 +47,7 @@
 
     <!-- Main Application -->
     <div id="main-app" class="container mx-auto p-4 max-w-6xl space-y-6 hidden w-full">
+        <!-- Header -->
         <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row justify-between items-center border border-slate-200 gap-4">
             <div>
                 <h1 class="text-xl font-bold text-purple-900 flex items-center">
@@ -55,12 +62,13 @@
                 <button onclick="loadBookings()" class="bg-purple-50 hover:bg-purple-100 text-purple-800 px-4 py-2 rounded-lg text-sm font-medium transition">
                     <i class="fa-solid fa-rotate-right mr-1"></i> Refresh Data
                 </button>
-                <button onclick="lockApp()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-sm font-medium transition" title="Lock App">
+                <button onclick="lockApp()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg text-sm font-medium transition" title="Lock App Now">
                     <i class="fa-solid fa-lock"></i>
                 </button>
             </div>
         </div>
 
+        <!-- ป้ายประกาศเตือนด้านบน -->
         <div class="bg-amber-50 border-l-4 border-amber-500 text-amber-900 p-4 rounded-xl shadow-sm flex items-center gap-3">
             <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center shrink-0 text-lg">
                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -71,6 +79,7 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Booking Form -->
             <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-200 h-fit">
                 <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center">
                     <i class="fa-solid fa-calendar-plus text-purple-700 mr-2"></i>Booking Form
@@ -102,6 +111,7 @@
                 </form>
             </div>
 
+            <!-- Calendar Container -->
             <div class="bg-white rounded-2xl shadow-md p-4 md:p-6 border border-slate-200 md:col-span-2">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-bold text-slate-700 flex items-center">
@@ -138,6 +148,7 @@
 
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPnmCiI3kiMPn69piQGIXo4-LU6fBsNzT3PI6H5TWpOqoLP9SK-Of2mf6a1BXKuSJU/exec";
+
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let allBookings = [];
@@ -193,6 +204,7 @@
             if (nameStr.toUpperCase().startsWith('OFFICE')) {
                 return `<span class="truncate">${nameStr}</span>`;
             }
+
             const match = nameStr.match(/^([ABCD])\s+(.+)$/i);
             if (match) {
                 const group = match[1].toUpperCase();
@@ -342,7 +354,7 @@
             dayBookings.sort((a, b) => getShiftPriority(a.shift) - getShiftPriority(b.shift));
 
             const parts = dateStr.split('-');
-            const formattedDateTitle = `${parts[2]} ${monthsShort[parseInt(parts[1], 10) - 1]}${parts[0]}`;
+            const formattedDateTitle = `${parts[2]} ${monthsShort[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
 
             let htmlContent = `<div class="space-y-2 text-left max-h-60 overflow-y-auto pr-1">`;
             if (dayBookings.length === 0) {
@@ -366,7 +378,18 @@
             htmlContent += `</div>`;
 
             Swal.fire({
-                title: `รายชื่อผู้ลาวันที่ ${formattedDateTitle}`, html: htmlContent, showCloseButton: true, showConfirmButton: false }); }  async function cancelFromPopup(dateStr, bookingEmpId, empName) { Swal.close(); const { value: birthMonthInput } = await Swal.fire({ title: 'ยืนยันการยกเลิกวันลา', text: `กรุณากรอกเดือนเกิด (3 ตัวอักษรภาษาอังกฤษ เช่น jan, feb) ของ "${empName}" เพื่อยืนยัน`,
+                title: `รายชื่อผู้ลาวันที่ ${formattedDateTitle}`,
+                html: htmlContent,
+                showCloseButton: true,
+                showConfirmButton: false
+            });
+        }
+
+        async function cancelFromPopup(dateStr, bookingEmpId, empName) {
+            Swal.close();
+            const { value: birthMonthInput } = await Swal.fire({
+                title: 'ยืนยันการยกเลิกวันลา',
+                text: `กรุณากรอกเดือนเกิด (3 ตัวอักษรภาษาอังกฤษ เช่น jan, feb) ของ "${empName}" เพื่อยืนยัน`,
                 input: 'text',
                 inputPlaceholder: 'เช่น jan',
                 showCancelButton: true,
@@ -411,8 +434,8 @@
             
             const yearTh = currentYear + 543;
             monthYearDisplay.innerHTML = `
-                <div class="text-sm font-bold text-purple-900">${monthsShortEn[currentMonth]}${currentYear}</div>
-                <div class="text-xs font-semibold text-slate-500">${monthsShortTh[currentMonth]}${yearTh}</div>
+                <div class="text-sm font-bold text-purple-900">${monthsShortEn[currentMonth]} ${currentYear}</div>
+                <div class="text-xs font-semibold text-slate-500">${monthsShortTh[currentMonth]} ${yearTh}</div>
             `;
 
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -436,4 +459,31 @@
                 dayBookings.forEach(b => {
                     let shiftClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
                     if (getShiftPriority(b.shift) === 2) shiftClass = "bg-blue-100 text-blue-800 border-blue-200";
-                    bookingsHtml += `<div class="text-xs ${shiftClass} px-2 py-1.5 rounded border mb-1 font-bold flex justify-between items-
+                    bookingsHtml += `<div class="text-xs ${shiftClass} px-2 py-1.5 rounded border mb-1 font-bold flex justify-between items-center shadow-xs">${formatNameWithGroupBadge(b.name)}</div>`;
+                });
+
+                const shiftInfo = getShiftForDate(new Date(currentYear, currentMonth, day));
+                dayDiv.innerHTML = `
+                    <div class="flex justify-between items-center px-0.5 mb-1">
+                        <div>
+                            <span class="font-bold text-xs text-slate-700">${day}</span>
+                            <div class="text-[10px] font-semibold text-purple-700 bg-purple-50 px-1 rounded mt-0.5 inline-block">${shiftInfo.day}/${shiftInfo.night}</div>
+                        </div>
+                        ${dayBookings.length > 0 ? `<span class="bg-purple-100 text-purple-800 text-[10px] px-1.5 rounded-full font-bold">${dayBookings.length} คน</span>` : ''}
+                    </div>
+                    <div class="w-full flex-1 space-y-0.5">${bookingsHtml}</div>
+                `;
+                calendarDays.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(direction) {
+            resetIdleTimer();
+            currentMonth += direction;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        }
+    </script>
+</body>
+</html>
